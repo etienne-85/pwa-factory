@@ -1,4 +1,4 @@
-import data from '../../../tsconfig.json'
+import data from '../../../../tsconfig.json'
 import fs from "fs";
 const writeFile = (content) => {
     try {
