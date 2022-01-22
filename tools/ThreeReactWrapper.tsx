@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { ThreeApp } from '../../three-core-modules/core/ThreeApp';
 import { isMobile } from '../utils/misc';
 // import { AdvancedThreeApp, ThreeApp, ThreeDemoApp } from '../three-core-modules/core/ThreeApp';
 import './ThreeReactWrapper.css';
 import { TouchControls } from './TouchControls';
 
-export let AppClass: any// appInstance should inherit of ThreeApp, AdvancedThreeApp, or ThreeDemoApp types
+// export let AppClass: any// a singleton class
 
 /**
  * React wrapper for launching three applications
@@ -13,15 +14,16 @@ export let AppClass: any// appInstance should inherit of ThreeApp, AdvancedThree
  */
 export const ThreeReactWrapper = ({ appClass }) => {
   const ref: any = useRef();
+  const [isReady, setIsReady] = useState(false);
   const [item, setItem] = useState(-1);
   const [mode, setMode] = useState(null);
   const touchRef = useRef()
 
-  AppClass = appClass
+  // AppClass = appClass
   useEffect(() => {
     const stateProps = { setItem, setMode };
     //(demo as any).initState(stateProps);
-    const appInstance = AppClass.instance()
+    const appInstance = ThreeApp.singleton(appClass)
     appInstance.init();
     ref.current.appendChild(appInstance.renderer.domElement)
 
@@ -34,7 +36,7 @@ export const ThreeReactWrapper = ({ appClass }) => {
     touchRef.current = appInstance.controls
     // lock screen in landscapte mode
     window.screen.orientation.lock("landscape").then(val => console.log(val))
-
+    setIsReady(true)
     // renderer.domElement = canvasRef.current;
     // appInstance.renderer.setAnimationLoop(demo.render)
   }, [])
@@ -52,7 +54,7 @@ export const ThreeReactWrapper = ({ appClass }) => {
         <TouchControls touchRef={touchRef} />
         {/* {currentBottle && mode === CONTROL_MODES.SELECTED && <OverlayV bottleCfg={currentBottle.config} onClose={closeOverlay} />} */}
       </div>
-      <StatsWidget />
+      {isReady && <StatsWidget />}
       <DebugInfos />
     </>
 
@@ -66,8 +68,11 @@ const StatsWidget = () => {
   const ref: any = useRef();
 
   useEffect(() => {
-    ref.current.appendChild(AppClass.instance().stats.dom);
+    console.log("[StatsWidget] init")
+    if (ThreeApp.instance) ref.current.appendChild(ThreeApp.instance.stats.dom);
   }, [])
+
+  console.log("[StatsWidget] refresh")
 
   return (<div ref={ref} className="ThreeStats" />)
 }
