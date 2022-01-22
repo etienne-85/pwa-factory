@@ -1,25 +1,27 @@
-import { useState } from "react"
+import {  useState } from "react"
+
+const halfWidth = window.innerWidth / 2
+
+const normDiff = (v) => {
+    const dx = Math.round(v.x)
+    const dy = Math.round(v.y)
+    return ({
+        x: Math.sign(dx) * Math.min(Math.abs(dx), 128),
+        y: Math.sign(dy) * Math.min(Math.abs(dy), 128)
+    })
+}
+
 
 export const TouchControls = ({ touchRef }) => {
     const [touches, setTouches]: any = useState({})
 
-    const halfWidth = window.innerWidth / 2
-    const normDiff = (v) => {
-        const dx = Math.round(v.x)
-        const dy = Math.round(v.y)
-        return ({
-            x: Math.sign(dx) * Math.min(Math.abs(dx), 128),
-            y: Math.sign(dy) * Math.min(Math.abs(dy), 128)
-        })
-    }
+    const getJoystick = (touch) => (touch.orig.x < halfWidth ? touchRef.current.joyLeft : touchRef.current.joyRight)
 
     Object.values(touches).forEach((touch: any) => {
         const touchVal = normDiff(touch.diff)
-        if (touch.orig.x < halfWidth) {
-            touchRef.current.joyLeft = touch.active ? touchVal : { x: 0, y: 0 }
-        } else {
-            touchRef.current.joyRight = touch.active ? touchVal : { x: 0, y: touchVal.y }
-        }
+        let joystick = getJoystick(touch)
+        joystick.x = touch.active || !joystick.autoReset ? touchVal.x : 0
+        joystick.y = touch.active || !joystick.autoReset ? touchVal.y : 0
     })
 
     const onTouchStart = (e: any) => {
@@ -28,8 +30,10 @@ export const TouchControls = ({ touchRef }) => {
             const touchId = touch.identifier
             const orig = { x: touch.pageX, y: touch.pageY }
             const diff = { x: 0, y: 0 }
-            const current = touches[touchId]
-            touchesInit[touchId] = current?.active ? current : { orig, diff, active: true }
+            const touchInit = { orig, diff, active: true }
+            const existing = touches[touchId]
+            // const activeAndExisting = (existing && !existing.active) || !existing
+            touchesInit[touchId] = existing?.active ? existing: touchInit
         })
         setTouches(touchesInit)
     }
@@ -45,7 +49,20 @@ export const TouchControls = ({ touchRef }) => {
     }
 
     const onTouchEnd = (e: any) => {
-        Object.keys(touches).forEach(touchId => e.touches[touchId] ? "" : touches[touchId].active = false)
+        Object.keys(touches).forEach(touchId => {
+            // if touch press released
+            const existingEvent = e.touches[touchId]
+            if (!existingEvent) {
+                // disable corresponding touch state
+                const touch = touches[touchId]
+                touch.active = false
+                const joystick = getJoystick(touch)
+                if (joystick.autoReset) {
+                    joystick.x = 0
+                    joystick.y = 0
+                } else joystick.needReset = true
+            }
+        })
         setTouches({ ...touches })
     }
 
