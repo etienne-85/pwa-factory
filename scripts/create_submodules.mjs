@@ -13,8 +13,9 @@ const writeFile = (content) => {
 let content = ""
 
 try {
-    // read contents of the file
-    const data = fs.readFileSync('./modules', 'UTF-8');
+    const [, , filepath] = process.argv;
+    console.log("read submodules from file " + filepath)
+    const data = fs.readFileSync('filepath', 'UTF-8');
 
     // split the contents by new line
     const lines = data.split(/\r?\n/);
