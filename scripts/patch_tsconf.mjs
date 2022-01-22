@@ -10,5 +10,6 @@ const writeFile = (content) => {
 }
 
 data.compilerOptions.strict = false
+data.compilerOptions.target = "es2015"
 
 writeFile(JSON.stringify(data))
