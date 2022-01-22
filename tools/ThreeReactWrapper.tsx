@@ -11,7 +11,7 @@ export let AppClass: any// appInstance should inherit of ThreeApp, AdvancedThree
  * Bridge between PWA <-> THREE
  * @returns 
  */
-export const ThreeAppWrapper = ({ appClass }) => {
+export const ThreeReactWrapper = ({ appClass }) => {
   const ref: any = useRef();
   const [item, setItem] = useState(-1);
   const [mode, setMode] = useState(null);
