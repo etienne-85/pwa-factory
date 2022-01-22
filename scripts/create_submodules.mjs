@@ -1,21 +1,20 @@
 // import data from '../../modules.txt'
 import fs from "fs";
 
-const writeFile = (content) => {
-    try {
-        fs.writeFileSync('./.gitmodules', content)
-        //file written successfully
-    } catch (err) {
-        console.error(err)
-    }
-}
+// const writeFile = (content) => {
+//     try {
+//         fs.writeFileSync('./.gitmodules', content)
+//         //file written successfully
+//     } catch (err) {
+//         console.error(err)
+//     }
+// }
 // console.log(data)
 let content = ""
 
 try {
     const [, , filepath] = process.argv;
-    console.log("read submodules from file " + filepath)
-    const data = fs.readFileSync('filepath', 'UTF-8');
+    const data = fs.readFileSync(filepath, 'UTF-8');
 
     // split the contents by new line
     const lines = data.split(/\r?\n/);
@@ -39,4 +38,4 @@ try {
 }
 // data.compilerOptions.strict = false
 
-writeFile(content)
+// writeFile(content)
