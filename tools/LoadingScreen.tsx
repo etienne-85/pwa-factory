@@ -7,10 +7,10 @@ export const LoadingScreen = () => {
         <div className="LoadingScreen ">
             <div className="center">
                 <img src={logo} className="logo" alt="logo" />
-                <p>
+                <h2>
                     LOADING
-                </p>
-                Please wait...
+                </h2>
+                <p>Please wait...</p>
             </div>
 
         </div>
