@@ -57,6 +57,23 @@
   transform: translate(-50%, -50%);
 }
 
+.bottom {
+  margin: 0;
+  position: absolute;
+  bottom: 0%;
+  /* -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); */
+}
+
+.right {
+  margin: 0;
+  position: absolute;
+  /* top: 50%; */
+  right: 0%;
+  /* -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); */
+}
+
 .ThreeApp {
   height: 100%;
 }
