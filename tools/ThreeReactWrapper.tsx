@@ -3,7 +3,8 @@ import { ThreeApp } from '../../three-core-modules/core/ThreeApp';
 import { isMobile } from '../utils/misc';
 // import { AdvancedThreeApp, ThreeApp, ThreeDemoApp } from '../three-core-modules/core/ThreeApp';
 import { TouchControls } from './TouchControls';
-import '../Pwa.css';
+import { LoadingScreen } from './LoadingScreen';
+import '../pwa.css';
 
 // export let AppClass: any// a singleton class
 
@@ -51,6 +52,7 @@ export const ThreeReactWrapper = ({ appClass }) => {
   return (
     <>
       <div ref={ref} className="ThreeApp" >
+        {!isReady && <LoadingScreen />}
 
         {isReady && <>
           <TouchControls touchRef={touchRef} />
