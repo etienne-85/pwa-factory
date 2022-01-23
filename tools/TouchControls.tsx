@@ -73,6 +73,6 @@ export const TouchControls = ({ touchRef }) => {
         const { x: dx, y: dy } = normDiff(touch.diff)
         return (<div style={{ position: "fixed", top: `${y}px`, left: `${x}px`, color }}>{side} dx: {dx} dy: {dy}</div>)
       })} */}
-        <div id={"TouchControls"} style={{ width: "100%", height: "100%", position: "absolute" }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} />
+        <div id={"touchControls"} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} />
     </>)
 }

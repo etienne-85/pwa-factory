@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ThreeApp } from '../../three-core-modules/core/ThreeApp';
 import { isMobile } from '../utils/misc';
 // import { AdvancedThreeApp, ThreeApp, ThreeDemoApp } from '../three-core-modules/core/ThreeApp';
-import './ThreeReactWrapper.css';
 import { TouchControls } from './TouchControls';
+import '../Pwa.css';
 
 // export let AppClass: any// a singleton class
 
@@ -23,9 +23,9 @@ export const ThreeReactWrapper = ({ appClass }) => {
   useEffect(() => {
     const stateProps = { setItem, setMode };
     //(demo as any).initState(stateProps);
-    const appInstance = ThreeApp.singleton(appClass)
-    appInstance.init();
-    ref.current.appendChild(appInstance.renderer.domElement)
+    const appInstance = ThreeApp.singleton(appClass, null, { ref })
+    // appInstance.init();
+    // ref.current.appendChild(appInstance.renderer.domElement)
 
     if (appInstance?.state) {
       appInstance.state.isMobile = isMobile()
@@ -41,20 +41,23 @@ export const ThreeReactWrapper = ({ appClass }) => {
     // appInstance.renderer.setAnimationLoop(demo.render)
   }, [])
 
-  // update state for demo apps
 
-  // if (appInstance?.state) {
-  //   appInstance.state.item = item;
-  //   appInstance.state.mode = mode;
-  // }
+  // sync react and three states
+  useEffect(() => {
+    ThreeApp.instance.state.item = item;
+    ThreeApp.instance.state.mode = mode;
+  }, [item, mode])
 
   return (
     <>
-      <div ref={ref} className="DemoApp" >
-        <TouchControls touchRef={touchRef} />
+      <div ref={ref} className="ThreeApp" >
+
+        {isReady && <>
+          <TouchControls touchRef={touchRef} />
+          <StatsWidget />
+        </>}
         {/* {currentBottle && mode === CONTROL_MODES.SELECTED && <OverlayV bottleCfg={currentBottle.config} onClose={closeOverlay} />} */}
       </div>
-      {isReady && <StatsWidget />}
       <DebugInfos />
     </>
 

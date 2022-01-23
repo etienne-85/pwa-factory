@@ -1,8 +1,0 @@
-.DemoStats {
-  position: fixed;
-  right: 0px;
-}
-
-.DemoStats > div {
-  position: unset !important;
-}
