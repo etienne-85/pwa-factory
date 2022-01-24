@@ -30,7 +30,7 @@ export const LoadingScreen = () => {
                 <h2>
                     LOADING
                 </h2>
-                <p>Please wait...</p>
+                <p className="blink" style={{color:"burlywood"}}>Please wait...</p>
             </div>
 
         </div>
