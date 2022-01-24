@@ -1,10 +1,8 @@
 import React from "react";
 import {
     Route,
-    useLocation,
     Link,
-    Routes,
-    useMatch
+    Routes
 } from "react-router-dom";
 import '../pwa.css'
 // import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -93,12 +91,6 @@ export const AppChildren = ({ ...props }) => {
                 </li>))}
             </ul>}
     </>)
-}
-
-export const NavBar = () => {
-    let location = useLocation();
-    let hash = window.location.hash;
-    return (<div id="navBar">{location.pathname}{hash}</div>)
 }
 
 // WIP: multiselect dropdown (react-select) to select url options
