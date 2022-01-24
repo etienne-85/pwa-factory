@@ -1,4 +1,4 @@
-import {  useState } from "react"
+import { useState } from "react"
 
 const halfWidth = window.innerWidth / 2
 
@@ -11,52 +11,84 @@ const normDiff = (v) => {
     })
 }
 
+/**
+ * Objects:
+ * 
+ * touchEvent { // Native JS object
+ *  identifier,
+ *  pageX,
+ *  pageY
+ * }
+ * 
+ * touch {
+ *  id:             // native identifer for touch event
+ *  orig: {x,y}     // original value when touch was first pressed
+ *  diff: {x, y}    // diff between current and original
+ * }
+ * 
+ * joystick{
+ *  x,          // current values
+ *  y,
+ *  needReset,  // inform joystick has been released and need reset
+ *  autoRest    // automatically reset value to 0 on release
+ * }
+ *  
+ */
 
 export const TouchControls = ({ touchRef }) => {
     const [touches, setTouches]: any = useState({})
 
     const getJoystick = (touch) => (touch.orig.x < halfWidth ? touchRef.current.joyLeft : touchRef.current.joyRight)
 
+    // Synch joysticks with touches
     Object.values(touches).forEach((touch: any) => {
-        const touchVal = normDiff(touch.diff)
-        let joystick = getJoystick(touch)
-        joystick.x = touch.active || !joystick.autoReset ? touchVal.x : 0
-        joystick.y = touch.active || !joystick.autoReset ? touchVal.y : 0
+        if (touch.active) {
+            const touchVal = normDiff(touch.diff)
+            let joystick = getJoystick(touch)
+            joystick.x = touchVal.x//touch.active || !joystick.autoReset ? touchVal.x : 0
+            joystick.y = touchVal.y //touch.active || !joystick.autoReset ? touchVal.y : 0
+        }
     })
 
     const onTouchStart = (e: any) => {
-        const touchesInit = {}
-        Object.values(e.touches).forEach((touch: any) => {
-            const touchId = touch.identifier
-            const orig = { x: touch.pageX, y: touch.pageY }
-            const diff = { x: 0, y: 0 }
-            const touchInit = { orig, diff, active: true }
-            const existing = touches[touchId]
-            // const activeAndExisting = (existing && !existing.active) || !existing
-            touchesInit[touchId] = existing?.active ? existing: touchInit
+        const touchesState = {}
+        Object.values(e.touches).forEach((touchEvt: any) => {
+            const touchId = touchEvt.identifier
+            // find a previous touch
+            let touch = touches[touchId]
+            // if doesn't exist or is inactive
+            if (!touch || !touch.active) {
+                // create or reinit touch
+                const orig = { x: touchEvt.pageX, y: touchEvt.pageY }
+                const diff = { x: 0, y: 0 }
+                touch = { orig, diff, active: true }
+            }
+            touchesState[touchId] = touch
         })
-        setTouches(touchesInit)
+        setTouches(touchesState)
     }
 
     const onTouchMove = (e: any) => {
-        // update touches state
-        Object.values(e.touches).forEach((touch: any) => {
-            const touchState = touches[touch.identifier]
-            touchState.diff.x = touch.pageX - touchState.orig.x
-            touchState.diff.y = touch.pageY - touchState.orig.y
+        // update touches instant values
+        Object.values(e.touches).forEach((touchEvt: any) => {
+            const touch = touches[touchEvt.identifier]
+            touch.diff.x = touchEvt.pageX - touch.orig.x
+            touch.diff.y = touchEvt.pageY - touch.orig.y
         })
         setTouches({ ...touches })
     }
 
     const onTouchEnd = (e: any) => {
         Object.keys(touches).forEach(touchId => {
-            // if touch press released
-            const existingEvent = e.touches[touchId]
-            if (!existingEvent) {
+            // find correponding touch event: not found => touch has been released
+            const touchEvt = e.touches[touchId] // the corresponding touch event
+            const touch = touches[touchId] // touch
+            const joystick = getJoystick(touch) // the corresponding joystick
+
+            if (!touchEvt) {
                 // disable corresponding touch state
-                const touch = touches[touchId]
                 touch.active = false
-                const joystick = getJoystick(touch)
+                // 
                 if (joystick.autoReset) {
                     joystick.x = 0
                     joystick.y = 0

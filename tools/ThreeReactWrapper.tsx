@@ -52,12 +52,10 @@ export const ThreeReactWrapper = ({ appClass }) => {
   return (
     <>
       <div ref={ref} className="ThreeApp" >
-        {!isReady && <LoadingScreen />}
-
-        {isReady && <>
+        {isReady ? <>
           <TouchControls touchRef={touchRef} />
           <StatsWidget />
-        </>}
+        </> : <LoadingScreen />}
         {/* {currentBottle && mode === CONTROL_MODES.SELECTED && <OverlayV bottleCfg={currentBottle.config} onClose={closeOverlay} />} */}
       </div>
       <DebugInfos />
