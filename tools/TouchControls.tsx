@@ -38,7 +38,10 @@ const normDiff = (v) => {
 export const TouchControls = ({ touchRef }) => {
     const [touches, setTouches]: any = useState({})
 
-    const getJoystick = (touch) => (touch.orig.x < halfWidth ? touchRef.current.joyLeft : touchRef.current.joyRight)
+    const getJoystick = (touch) => {
+        const touchX = touch.orig ? touch.orig.x : touch.pageX
+        return touchX < halfWidth ? touchRef.current.joyLeft : touchRef.current.joyRight
+    }
 
     // Synch joysticks with touches
     Object.values(touches).forEach((touch: any) => {
@@ -79,13 +82,21 @@ export const TouchControls = ({ touchRef }) => {
     }
 
     const onTouchEnd = (e: any) => {
-        Object.keys(touches).forEach(touchId => {
-            // find correponding touch event: not found => touch has been released
-            const touchEvt = e.touches[touchId] // the corresponding touch event
-            const touch = touches[touchId] // touch
+        Object.values(touches).forEach((touch: any) => {
+            console.log(touch)
+            // find correponding touch event: ids are not reliable anymore, search with current value
+            const matchEvt = Object.values(e.touches).find((touchEvt: any) => {
+                console.log(touchEvt)
+                const matching = touchEvt.pageX === (touch.orig.x + touch.diff.x)
+                    && touchEvt.pageY === (touch.orig.y + touch.diff.y);
+                return matching
+            })
+
+            // const touchEvt = e.touches[touchId] // the corresponding touch event
+            // const touch = touches[touchId] // touch
             const joystick = getJoystick(touch) // the corresponding joystick
 
-            if (!touchEvt) {
+            if (!matchEvt) {
                 // disable corresponding touch state
                 touch.active = false
                 // 
@@ -93,7 +104,11 @@ export const TouchControls = ({ touchRef }) => {
                     joystick.x = 0
                     joystick.y = 0
                 } else joystick.needReset = true
+            } else {
+                // reassing correct id
+                // touch.id = matchEvt.identifier
             }
+            console.log(matchEvt)
         })
         setTouches({ ...touches })
     }

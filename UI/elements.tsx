@@ -21,18 +21,3 @@ export const LoadingBar = () => {
     let hash = window.location.hash;
     return (<div id="navBar" className="top">{location.pathname}{hash}</div>)
 }
-
-export const LoadingScreen = () => {
-    return (
-        <div className="LoadingScreen ">
-            <div className="center">
-                <img src={logo} className="logo" alt="logo" />
-                <h2>
-                    LOADING
-                </h2>
-                <p className="blink" style={{color:"burlywood"}}>Please wait...</p>
-            </div>
-
-        </div>
-    );
-}
