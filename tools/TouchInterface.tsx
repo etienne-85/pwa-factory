@@ -22,8 +22,8 @@ export const TouchInterface = ({touchRef}) => {
     })
 
     return (<>
-        <TouchButton icon={faEject} style={{ bottom: "45%", right: "25%" }} onTouch={(state) => onButtonTouch(BTN_ACTIONS.Jump, state)} />
-        <TouchButton icon={faFire} style={{ bottom: "15%", right: "20%" }} onTouch={(state) => onButtonTouch(BTN_ACTIONS.Fire, state)} />
+        <TouchButton icon={faEject} style={{ top: "40%", right: "10%" }} onTouch={(state) => onButtonTouch(BTN_ACTIONS.Jump, state)} />
+        <TouchButton icon={faFire} style={{ bottom: "13%", right: "8%" }} onTouch={(state) => onButtonTouch(BTN_ACTIONS.Fire, state)} />
     </>)
 
 }
