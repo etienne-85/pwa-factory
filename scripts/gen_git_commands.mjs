@@ -35,6 +35,9 @@ try {
         const lineSplit = line.split('@')
         // let logCI = lineSplit.length > 1 ? "using authentication" : "no credentials provided"
         // console.log(process.env.CI ? logCI : "local environement => ssh clone mode")
+        // transform any credentials vars in env var here for safety purpose
+        line = line.replace(/GIT_USR/, "$GIT_USR")
+        line = line.replace(/GIT_PWD/, "$GIT_PWD")
         line = process.env.CI || lineSplit.length === 1 ? line : lineSplit[1]
         line = process.env.CI ? line : line.replace(/\//, ":")
         const clone_method = process.env.CI ? 'https://' : 'git@'
