@@ -129,7 +129,7 @@ export const TouchControls = ({ touchRef }) => {
         return (<div style={{ position: "fixed", top: `${y}px`, left: `${x}px`, color }}>{side} dx: {dx} dy: {dy}</div>)
       })} */}
         <div id={"touchControls"} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-            <TouchInterface />
+            <TouchInterface touchRef={touchRef} />
         </div>
     </>)
 }

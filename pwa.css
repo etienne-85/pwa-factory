@@ -81,5 +81,9 @@
 .touchIcons {
   color: antiquewhite;
   position: fixed;
+  padding: 15px;
+  border: 1px solid bisque;
+  border-radius: 50%;
+  /* --fa-li-margin: 2em; */
   /* opacity: 0.5; */
 }

@@ -7,21 +7,23 @@ enum BTN_ACTIONS {
     Fire
 }
 
-export const TouchInterface = () => {
+export const TouchInterface = ({touchRef}) => {
     const onButtonTouch = ((action, state) => {
         switch (action) {
             case BTN_ACTIONS.Jump:
-                if (state) console.log("jump")
+                // if (state) console.log("jump")
+                touchRef.current.jump = state
                 break;
             case BTN_ACTIONS.Fire:
-                if (state) console.log("fire")
+                // if (state) console.log("fire")
+                touchRef.current.fire = state
                 break;
         }
     })
 
     return (<>
-        <TouchButton icon={faEject} style={{ bottom: "35%", right: "15%" }} onTouch={(state) => onButtonTouch(BTN_ACTIONS.Jump, state)} />
-        <TouchButton icon={faFire} style={{ bottom: "15%", right: "15%" }} onTouch={(state) => onButtonTouch(BTN_ACTIONS.Fire, state)} />
+        <TouchButton icon={faEject} style={{ bottom: "45%", right: "25%" }} onTouch={(state) => onButtonTouch(BTN_ACTIONS.Jump, state)} />
+        <TouchButton icon={faFire} style={{ bottom: "15%", right: "20%" }} onTouch={(state) => onButtonTouch(BTN_ACTIONS.Fire, state)} />
     </>)
 
 }
