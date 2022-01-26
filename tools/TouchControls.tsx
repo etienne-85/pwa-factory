@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
+import { TouchInterface } from "./TouchInterface"
 
 const halfWidth = window.innerWidth / 2
 
@@ -36,7 +37,8 @@ const normDiff = (v) => {
  */
 
 export const TouchControls = ({ touchRef }) => {
-    const [touches, setTouches]: any = useState({})
+    // const [touches, setTouches]: any = useState({})
+    const touchesRef = useRef({})
 
     const getJoystick = (touch) => {
         const touchX = touch.orig ? touch.orig.x : touch.pageX
@@ -44,21 +46,24 @@ export const TouchControls = ({ touchRef }) => {
     }
 
     // Synch joysticks with touches
-    Object.values(touches).forEach((touch: any) => {
-        if (touch.active) {
-            const touchVal = normDiff(touch.diff)
-            let joystick = getJoystick(touch)
-            joystick.x = touchVal.x//touch.active || !joystick.autoReset ? touchVal.x : 0
-            joystick.y = touchVal.y //touch.active || !joystick.autoReset ? touchVal.y : 0
-        }
-    })
+    const syncJoysticks = (touchesState) => {
+        Object.values(touchesState).forEach((touch: any) => {
+            if (touch.active) {
+                const touchVal = normDiff(touch.diff)
+                let joystick = getJoystick(touch)
+                joystick.x = touchVal.x//touch.active || !joystick.autoReset ? touchVal.x : 0
+                joystick.y = touchVal.y //touch.active || !joystick.autoReset ? touchVal.y : 0
+            }
+        })
+    }
+
 
     const onTouchStart = (e: any) => {
-        const touchesState = {}
+        const touchesState = touchesRef.current //{}
         Object.values(e.touches).forEach((touchEvt: any) => {
             const touchId = touchEvt.identifier
             // find a previous touch
-            let touch = touches[touchId]
+            let touch = touchesState[touchId]
             // if doesn't exist or is inactive
             if (!touch || !touch.active) {
                 // create or reinit touch
@@ -68,22 +73,25 @@ export const TouchControls = ({ touchRef }) => {
             }
             touchesState[touchId] = touch
         })
-        setTouches(touchesState)
+        // setTouches(touchesState)
     }
 
     const onTouchMove = (e: any) => {
+        const touchesState = touchesRef.current
         // update touches instant values
         Object.values(e.touches).forEach((touchEvt: any) => {
-            const touch = touches[touchEvt.identifier]
+            const touch = touchesState[touchEvt.identifier]
             touch.diff.x = touchEvt.pageX - touch.orig.x
             touch.diff.y = touchEvt.pageY - touch.orig.y
         })
-        setTouches({ ...touches })
+        syncJoysticks(touchesState)
+        // setTouches({ ...touches })
     }
 
     const onTouchEnd = (e: any) => {
-        Object.values(touches).forEach((touch: any) => {
-            console.log(touch)
+        const touchesState = touchesRef.current
+
+        Object.values(touchesState).forEach((touch: any) => {
             // find correponding touch event: ids are not reliable anymore, search with current value
             const matchEvt = Object.values(e.touches).find((touchEvt: any) => {
                 console.log(touchEvt)
@@ -108,9 +116,9 @@ export const TouchControls = ({ touchRef }) => {
                 // reassing correct id
                 // touch.id = matchEvt.identifier
             }
-            console.log(matchEvt)
+            // console.log(matchEvt)
         })
-        setTouches({ ...touches })
+        // setTouches({ ...touches })
     }
 
     return (<>{/* {Object.values(touches).map((touch: any) => {
@@ -120,6 +128,8 @@ export const TouchControls = ({ touchRef }) => {
         const { x: dx, y: dy } = normDiff(touch.diff)
         return (<div style={{ position: "fixed", top: `${y}px`, left: `${x}px`, color }}>{side} dx: {dx} dy: {dy}</div>)
       })} */}
-        <div id={"touchControls"} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} />
+        <div id={"touchControls"} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+            <TouchInterface />
+        </div>
     </>)
 }
