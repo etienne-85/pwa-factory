@@ -52,6 +52,7 @@ jobs:
           # generate file
           node $SCRIPTS_DIR/gen_gitmodules.mjs $MODULES_INDEX_FILE >> .gitmodules
           cat .gitmodules
+          rm $MODULES_INDEX_FILE
       - name: Patch/customize cra files #requires node package installed + scripts from this rep
         env:
           JSON_PATCHER: "./src/modules/pwa-tools/scripts/json_cfg_patcher.mjs"
@@ -103,7 +104,7 @@ jobs:
     - name: Download packages deps and checkout modules
       run: |
         yarn
-        yarn setup-finish
+        # yarn setup-finish
 
     - name: Build web app (include build information)
       env: 
@@ -113,7 +114,7 @@ jobs:
         timestamp=$(date '+%Y%m%d') #$(date '+%Y-%m-%d_%H:%M:%S') 
         build_num=$timestamp\#$RUN_NUM
         echo $build_num
-        CI=false PUBLIC_URL=/forknite REACT_APP_BUILD_NUM=$build_num yarn build
+        CI=false PUBLIC_URL=/pwa-tools REACT_APP_BUILD_NUM=$build_num yarn build
       
     - name: Github pages deployment
       uses: peaceiris/actions-gh-pages@v3
