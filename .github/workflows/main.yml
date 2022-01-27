@@ -15,22 +15,109 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  # This job generate workspace artifact that will be used by next job to build and publish webapp 
+  workspace_setup:
+    name: Genrate workspace
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-20.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    env:
+      MODULE_NAME: pwa
+      MODULES_INDEX_FILE: src/modules/modules_index
+      SCRIPTS_DIR: src/modules/pwa-tools/scripts/
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - name: Setup CRA project
+        run:
+          pwd && ls -la &&
+          yarn create react-app . --template cra-template-pwa-typescript &&
+          mkdir ./src/modules/
+      - name: Download packages deps
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          yarn add react-router-dom # three @types/three
+          # yarn add @fortawesome/fontawesome-svg-core@next @fortawesome/free-solid-svg-icons@next @fortawesome/free-regular-svg-icons@next @fortawesome/react-fontawesome@latest
+      - uses: actions/checkout@v2
+        with:
+          repository: "etienne1911/pwa-tools"
+          path: "src/modules/pwa-tools"
+      - name: Generate gitmodules config file + finishSetup script
+        run: |
+          # add module to the index
+          echo "github.com/etienne1911/pwa-tools.git" >> $MODULES_INDEX_FILE
+          # generate file
+          node $SCRIPTS_DIR/gen_gitmodules.mjs $MODULES_INDEX_FILE >> .gitmodules
+          cat .gitmodules
+      - name: Patch/customize cra files #requires node package installed + scripts from this rep
+        env:
+          JSON_PATCHER: "./src/modules/pwa-tools/scripts/json_cfg_patcher.mjs"
+          TSCONF_PATCH: '{"compilerOptions":{"target":"es2015","strict":false}}'
+          MANIFEST_PATCH: '{"short_name":"PWA","name":"PWA Demo", "display": "fullscreen", "description":"PWA Demo App","start_url":".", "orientation": "landscape" }'
+          PACKAGE_PATCH: '{"scripts":{"setup-finish":"cd src/modules && node pwa-tools/scripts/gen_git_commands.mjs modules_index | sh"}}'
+          VIEWPORT_LINE: '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />'
+          TITLE_LINE: '<title>PWA Demo</title>'
+          HTML_PATCH_FILE: 'src/modules/pwa-tools/patches/gh-pages_spa-fix.patch'
+        run: |
+          node --experimental-json-modules $JSON_PATCHER ./tsconfig.json "${TSCONF_PATCH}" > temp.json
+          mv temp.json tsconfig.json
+          node --experimental-json-modules $JSON_PATCHER ./public/manifest.json "${MANIFEST_PATCH}" > temp.json
+          mv temp.json ./public/manifest.json
+          node --experimental-json-modules $JSON_PATCHER ./package.json "${PACKAGE_PATCH}" > temp.json
+          mv temp.json ./package.json
+          # sed -i "s/.\/App/.\/modules\/${MODULE_NAME}\//" src/index.tsx 
+          sed -i "/viewport/c${VIEWPORT_LINE}" public/index.html
+          cat ./tsconfig.json && cat ./src/index.tsx && cat ./public/manifest.json && cat public/index.html
+          sed -i "/\/title/c${TITLE_LINE}" public/index.html
+          export HTML_PATCH_CONTENT=$(cat $HTML_PATCH_FILE) && echo $HTML_PATCH_CONTENT
+          sed -i "/\/head/i${HTML_PATCH_CONTENT}" public/index.html
+          cp src/modules/pwa-tools/patches/404.html public/
+      - name: Build web app
+        run: CI=false PUBLIC_URL=/pwa-tools yarn build
+      - name: Workspace artefact
+        uses: actions/upload-artifact@v2
+        with:
+          name: pwa-workspace-artifact
+          path: |
+            .
+            !./node_modules/
+            !./build/
+  # This job retrieve workspace artifact published before 
+  webapp_deploy:
+    name: Publish webapp
+    needs: workspace_setup
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Retrieve workspace artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: forknite-workspace-artifact 
+      
+    - name: Display structure of downloaded files
+      run: ls -R
+      
+    - name: Download packages deps and checkout modules
+      run: |
+        yarn
+        yarn setup-finish
+
+    - name: Build web app (include build information)
+      env: 
+        RUN_ID: ${{ github.run_id }}
+        RUN_NUM: ${{ github.run_number }}
+      run: |
+        timestamp=$(date '+%Y%m%d') #$(date '+%Y-%m-%d_%H:%M:%S') 
+        build_num=$timestamp\#$RUN_NUM
+        echo $build_num
+        CI=false PUBLIC_URL=/forknite REACT_APP_BUILD_NUM=$build_num yarn build
+      
+    - name: Github pages deployment
+      uses: peaceiris/actions-gh-pages@v3
+      if: ${{ github.ref == 'refs/heads/main' }}
+      with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/
