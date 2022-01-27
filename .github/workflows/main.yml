@@ -40,7 +40,7 @@ jobs:
       - name: Download packages deps
         run: |
           yarn add react-router-dom # three @types/three
-          # yarn add @fortawesome/fontawesome-svg-core@next @fortawesome/free-solid-svg-icons@next @fortawesome/free-regular-svg-icons@next @fortawesome/react-fontawesome@latest
+          yarn add @fortawesome/fontawesome-svg-core@next @fortawesome/free-solid-svg-icons@next @fortawesome/free-regular-svg-icons@next @fortawesome/react-fontawesome@latest
       - uses: actions/checkout@v2
         with:
           repository: "etienne1911/pwa-tools"
