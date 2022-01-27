@@ -95,7 +95,7 @@ jobs:
     - name: Retrieve workspace artifact
       uses: actions/download-artifact@v2
       with:
-        name: forknite-workspace-artifact 
+        name: pwa-workspace-artifact 
       
     - name: Display structure of downloaded files
       run: ls -R
