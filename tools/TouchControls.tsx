@@ -1,5 +1,4 @@
-import { useRef, useState } from "react"
-import { TouchInterface } from "./TouchInterface"
+import { useRef } from "react"
 
 const halfWidth = window.innerWidth / 2
 
@@ -36,7 +35,7 @@ const normDiff = (v) => {
  *  
  */
 
-export const TouchControls = ({ touchRef }) => {
+export const TouchControls = ({ touchRef, children }) => {
     // const [touches, setTouches]: any = useState({})
     const touchesRef = useRef({})
 
@@ -129,7 +128,7 @@ export const TouchControls = ({ touchRef }) => {
         return (<div style={{ position: "fixed", top: `${y}px`, left: `${x}px`, color }}>{side} dx: {dx} dy: {dy}</div>)
       })} */}
         <div id={"touchControls"} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-            <TouchInterface touchRef={touchRef} />
+            {children}
         </div>
     </>)
 }
