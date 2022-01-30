@@ -15,7 +15,7 @@ export const AppRoutes = (props: any) => {
         <Routes>
             <Route path={"/"} element={<AppLinks elements={children} />} />
             {React.Children.map(children, (child) => {
-                const c = child.props.appClass
+                const c = child.props.classObj
                 const name = c ? c.Name : child.type.name
                 if (!c) console.log(child)
                 console.log(name)
@@ -32,7 +32,7 @@ const AppLinks = ({ elements }) => {
         <ul>
             {/* <li>toto</li> */}
             {React.Children.map(elements, (child) => {
-                const c = child.props.appClass
+                const c = child.props.classObj
                 const name = c ? c.Name : child.type.name
                 return (<li>
                     <Link
