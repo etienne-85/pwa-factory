@@ -8,36 +8,44 @@ import '../pwa.css'
 // import { faTrash } from "@fortawesome/free-solid-svg-icons";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+const getRouteName = (comp) => {
+    const c = comp.props.classObj
+    const defaultRoute = c ? c.Name : comp.type.name
+    const routeName = comp.props.customRouteName ? comp.props.customRouteName : defaultRoute;
+    // if (!c) console.log(comp)
+    // console.log(routeName)
+    return routeName
+}
+
 export const AppRoutes = (props: any) => {
-    const { children } = props
+    const { children, index } = props
+    // @todo forward children to indexcomponent
+    // if (index) index.props = children    
 
     return (<>
         <Routes>
-            <Route path={"/"} element={<AppLinks elements={children} />} />
+            <Route path={"/"} element={index ? index : <RouteLinks elements={children} />} />
             {React.Children.map(children, (child) => {
-                const c = child.props.classObj
-                const name = c ? c.Name : child.type.name
-                if (!c) console.log(child)
-                console.log(name)
-                return (<Route path={`${name}/*`} element={child} />)
+                const routeName = getRouteName(child)
+                console.log(routeName)
+                return (<Route path={`${routeName}/*`} element={child} />)
             })}
             {/* <Route path={`${path}/:topicId`}> */}
         </Routes>
     </>)
 }
 
-const AppLinks = ({ elements }) => {
-    console.log(elements);
+export const RouteLinks = ({ elements }) => {
+    // console.log(elements);
     return (
         <ul>
             {/* <li>toto</li> */}
             {React.Children.map(elements, (child) => {
-                const c = child.props.classObj
-                const name = c ? c.Name : child.type.name
+                const routeName = getRouteName(child)
                 return (<li>
                     <Link
-                        to={`${name}`}
-                    >{name}</Link>
+                        to={`${routeName}`}
+                    >{routeName}</Link>
                 </li>)
             })}
         </ul>)

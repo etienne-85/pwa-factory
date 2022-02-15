@@ -6,7 +6,7 @@ import '../pwa.css'
 export const BuildNum = () => {
     return (<div className="bottom right">
         {/* <img src={logo} className="logo" alt="logo" /> */}
-        <code style={{ fontSize: "small" }}>build: {process.env.REACT_APP_BUILD_NUM}</code>
+        <code style={{ fontSize: "small" }}>build#: {process.env.REACT_APP_BUILD_NUM}</code>
     </div>)
 }
 

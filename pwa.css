@@ -11,6 +11,26 @@
   z-index: 100;
 }
 
+.App {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: antiquewhite;
+}
+
+.App a {
+  color: #61dafb;
+}
+
+/* .App-items {
+  text-align: left !important;
+}
+
+.App-header-cust {
+  justify-content: left !important;
+  align-items: unset !important;
+} */
 
 .ThreeApp {
   height: 100%;
