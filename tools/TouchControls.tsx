@@ -1,4 +1,7 @@
-import { useRef } from "react"
+import { faCircle } from "@fortawesome/free-regular-svg-icons"
+import { faCircle as faCircleSolid } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { useRef, useState } from "react"
 
 const halfWidth = window.innerWidth / 2
 
@@ -35,9 +38,10 @@ const normDiff = (v) => {
  *  
  */
 
-export const TouchControls = ({ touchRef, children }) => {
+export const TouchControls = ({ touchRef, children, showBtn = false }) => {
     // const [touches, setTouches]: any = useState({})
     const touchesRef = useRef({})
+    const [touching, setTouching] = useState(false);
 
     const getJoystick = (touch) => {
         const touchX = touch.orig ? touch.orig.x : touch.pageX
@@ -48,7 +52,8 @@ export const TouchControls = ({ touchRef, children }) => {
     const syncJoysticks = (touchesState) => {
         Object.values(touchesState).forEach((touch: any) => {
             if (touch.active) {
-                const touchVal = normDiff(touch.diff)
+                const dxy = { x: touch.pos.x - touch.orig.x, y: touch.pos.y - touch.orig.y }
+                const touchVal = normDiff(dxy)
                 let joystick = getJoystick(touch)
                 joystick.x = touchVal.x//touch.active || !joystick.autoReset ? touchVal.x : 0
                 joystick.y = touchVal.y //touch.active || !joystick.autoReset ? touchVal.y : 0
@@ -67,11 +72,12 @@ export const TouchControls = ({ touchRef, children }) => {
             if (!touch || !touch.active) {
                 // create or reinit touch
                 const orig = { x: touchEvt.pageX, y: touchEvt.pageY }
-                const diff = { x: 0, y: 0 }
-                touch = { orig, diff, active: true }
+                const pos = { x: touchEvt.pageX, y: touchEvt.pageY }
+                touch = { orig, pos, active: true }
             }
             touchesState[touchId] = touch
         })
+        if (showBtn) setTouching(true)
         // setTouches(touchesState)
     }
 
@@ -80,11 +86,12 @@ export const TouchControls = ({ touchRef, children }) => {
         // update touches instant values
         Object.values(e.touches).forEach((touchEvt: any) => {
             const touch = touchesState[touchEvt.identifier]
-            touch.diff.x = touchEvt.pageX - touch.orig.x
-            touch.diff.y = touchEvt.pageY - touch.orig.y
+            touch.pos.x = touchEvt.pageX
+            touch.pos.y = touchEvt.pageY
         })
         syncJoysticks(touchesState)
         // setTouches({ ...touches })
+        if (showBtn) setTouching(!touching)
     }
 
     const onTouchEnd = (e: any) => {
@@ -94,8 +101,8 @@ export const TouchControls = ({ touchRef, children }) => {
             // find correponding touch event: ids are not reliable anymore, search with current value
             const matchEvt = Object.values(e.touches).find((touchEvt: any) => {
                 console.log(touchEvt)
-                const matching = touchEvt.pageX === (touch.orig.x + touch.diff.x)
-                    && touchEvt.pageY === (touch.orig.y + touch.diff.y);
+                const matching = touchEvt.pageX === touch.pos.x
+                    && touchEvt.pageY === touch.pos.y;
                 return matching
             })
 
@@ -118,6 +125,7 @@ export const TouchControls = ({ touchRef, children }) => {
             // console.log(matchEvt)
         })
         // setTouches({ ...touches })
+        if (showBtn) setTouching(false)
     }
 
     return (<>{/* {Object.values(touches).map((touch: any) => {
@@ -128,6 +136,14 @@ export const TouchControls = ({ touchRef, children }) => {
         return (<div style={{ position: "fixed", top: `${y}px`, left: `${x}px`, color }}>{side} dx: {dx} dy: {dy}</div>)
       })} */}
         <div id={"touchControls"} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+            {touching && Object.values(touchesRef.current).map((touch: any) => {
+                if (touch.active) {
+                    return <>
+                        <FontAwesomeIcon className="touchIcons" icon={faCircle} size={"2x"} style={{ left: touch.pos.x, top: touch.pos.y }} />
+                        <FontAwesomeIcon className="touchIcons" icon={faCircle} size={"2x"} style={{ left: touch.pos.x, top: touch.pos.y }} />
+                    </>
+                }
+            })}
             {children}
         </div>
     </>)

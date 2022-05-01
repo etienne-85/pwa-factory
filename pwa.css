@@ -1,7 +1,9 @@
-#navBar {
+#statusBar {
   position: absolute;
   color: antiquewhite;
   z-index: 10;
+  width: 100%; 
+  display: flex;
 }
 
 #touchControls {
@@ -101,9 +103,14 @@
 .touchIcons {
   color: antiquewhite;
   position: fixed;
+}
+
+.touchBtn {
   padding: 15px;
   border: 1px solid bisque;
   border-radius: 50%;
-  /* --fa-li-margin: 2em; */
-  /* opacity: 0.5; */
+}
+
+body {
+  user-select: none;
 }
