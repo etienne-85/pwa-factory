@@ -1,2 +1,2 @@
-# pwa-tools
-Toolset for developing Progressive Web Applications
+# pwa-factory
+Codebase for developing Progressive Web Applications
